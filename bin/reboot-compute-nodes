@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -o pipefail -o xtrace
+
+WORKDIR=${WORKDIR:-$(pwd)}
+
+compute_nodes() {
+    sdc-cnapi /servers | json -Hac 'hostname != "headnode"' uuid
+}
+
+for compute_node in $(compute_nodes)
+do
+    sdc-cnapi "/servers/${compute_node}/reboot" -X POST
+done
