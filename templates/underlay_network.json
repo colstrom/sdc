@@ -1,0 +1,19 @@
+{
+  "mtu": 9000,
+  "nic_tag": "sdc_underlay",
+  "name": "sdc_underlay",
+  "provision_end_ip": "192.168.23.199",
+  "provision_start_ip": "192.168.23.50",
+  "subnet": "192.168.0.0/19",
+  "vlan_id": 0,
+  "resolvers": [
+    "8.8.8.8",
+    "8.8.4.4"
+  ],
+  "gateway": "192.168.31.254",
+  "routes": {},
+  "owner_uuids": [
+    "ADMIN-UUID"
+  ],
+  "netmask": "255.255.224.0"
+}
