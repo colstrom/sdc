@@ -25,4 +25,8 @@ Once all compute nodes have rebooted, run the following commands:
 
   # sdcadm update dockerlogger
 
+  # sdcadm experimental cns
+
+  # sdcadm experimental update-other
+
 EOF
