@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -o pipefail -o xtrace
+
+WORKDIR=${WORKDIR:-$(pwd)}
+
+get_underlay_nic_tag() {
+    sdc-napi /nic_tags/sdc_underlay --fail 2>/dev/null | json -H uuid
+}
+
+underlay_nic_tag_creation_payload() {
+    cat "${WORKDIR}/templates/underlay_nic_tag.json"
+}
+
+create_underlay_nic_tag() {
+    sdc-napi /nic_tags -X POST --data "$(underlay_nic_tag_creation_payload)" | json -H uuid
+}
+
+get_underlay_nic_tag || create_underlay_nic_tag
