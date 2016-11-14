@@ -1,0 +1,7 @@
+{
+  "default_underlay_mtu": 9000,
+  "default_overlay_mtu": 8500,
+  "sdc_nat_pool": "NATPOOL-UUID",
+  "sdc_underlay_assignment": "manual",
+  "sdc_underlay_tag": "sdc_underlay"
+}
