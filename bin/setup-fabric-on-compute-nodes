@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -o pipefail -o xtrace
+
+WORKDIR=${WORKDIR:-$(pwd)}
+
+compute_nodes() {
+    sdc-cnapi /servers | json -Hac 'hostname != "headnode"' uuid
+}
+
+UNDERLAY_NETWORK=$(setup-underlay-network)
+
+test -n "${UNDERLAY_NETWORK}" || exit 100
+
+for compute_node in $(compute_nodes)
+do
+    sdcadm post-setup underlay-nics "${UNDERLAY_NETWORK}" "${compute_node}"
+done
