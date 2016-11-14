@@ -1,0 +1,6 @@
+{
+    "name": "sdc_nat",
+    "networks": [
+        "EXTERNAL-NETWORK-UUID"
+    ]
+}
