@@ -14,7 +14,12 @@ add_underlay_nic_tag_to_compute_node() {
     sdc-server update-nictags -s "${1}" sdc_underlay_nic=$(compute_node_secondary_mac "${1}")
 }
 
+add_external_nic_tag_to_compute_node() {
+    sdc-server update-nictags -s "${1}" external_nic=$(compute_node_secondary_mac "${1}")
+}
+
 for uuid in $(compute_nodes)
 do
     add_underlay_nic_tag_to_compute_node "${uuid}"
+    add_external_nic_tag_to_compute_node "${uuid}"
 done
