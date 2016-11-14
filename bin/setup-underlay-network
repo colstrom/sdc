@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -o pipefail -o xtrace
+
+WORKDIR=${WORKDIR:-$(pwd)}
+
+underlay_network_uuid() {
+    sdc-napi /networks | json -Hac 'name == "sdc_underlay"' uuid
+}
+
+underlay_network_exists() {
+    test -n "$(underlay_network_uuid)"
+}
+
+get_underlay_network() {
+    underlay_network_exists && sdc-napi /networks/$(underlay_network_uuid) --fail 2>/dev/null | json -H uuid
+}
+
+admin_uuid() {
+    sdc-useradm get admin | json uuid
+}
+
+underlay_network_creation_payload() {
+    sed "s/ADMIN-UUID/$(admin_uuid)/" < "${WORKDIR}/templates/underlay_network.json"
+}
+
+create_underlay_network() {
+    sdc-napi /networks -X POST -d "$(underlay_network_creation_payload)" | json -H uuid
+}
+
+get_underlay_network || create_underlay_network
