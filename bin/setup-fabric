@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -o pipefail -o xtrace
+
+WORKDIR=${WORKDIR:-$(pwd)}
+
+portolan_uuid() {
+    sdc-sapi /services | json -Hac 'name == "portolan"' uuid
+}
+
+fabric_exists() {
+    test -n "$(portolan_uuid)"
+}
+
+fabric_creation_payload() {
+    sed "s/NATPOOL-UUID/$(setup-nat-pool)/" < "${WORKDIR}/templates/fabric.json"
+}
+
+create_fabric() {
+    mkdir -p "${WORKDIR}/payloads"
+    fabric_creation_payload > "${WORKDIR}/payloads/fabric.json"
+    sdcadm post-setup fabrics -c "${WORKDIR}/payloads/fabric.json"
+}
+
+fabric_exists || create_fabric
