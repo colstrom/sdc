@@ -7,7 +7,7 @@ compute_nodes() {
 }
 
 compute_node_secondary_mac() {
-    sdc-server nics "${1}" | json -ac 'this.nic_tag != "admin"' mac
+    sdc-server nics "${1}" | json -ac 'this.nic_tag == undefined' mac
 }
 
 add_underlay_nic_tag_to_compute_node() {
