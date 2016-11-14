@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -o pipefail -o xtrace
+
+compute_nodes() {
+    sdc-cnapi /servers | json -Hac 'hostname != "headnode"' uuid
+}
+
+compute_node_secondary_mac() {
+    sdc-server nics "${1}" | json -ac 'this.nic_tag != "admin"' mac
+}
+
+add_underlay_nic_tag_to_compute_node() {
+    sdc-server update-nictags -s "${1}" sdc_underlay_nic=$(compute_node_secondary_mac "${1}")
+}
+
+for uuid in $(compute_nodes)
+do
+    add_underlay_nic_tag_to_compute_node "${uuid}"
+done
