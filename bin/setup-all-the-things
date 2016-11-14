@@ -1,0 +1,28 @@
+#!/bin/sh
+
+export PATH=${PATH}:${PWD}/bin
+
+set -o errexit -o xtrace
+
+sdcadm post-setup common-external-nics
+sdcadm post-setup cloudapi
+sdcadm post-setup dev-sample-data
+setup-underlay-nic-tag
+setup-underlay-network
+setup-nat-pool
+setup-nic-tags-on-compute-nodes
+setup-fabric
+setup-fabric-on-compute-nodes
+
+cat <<EOF
+At this point, you should reboot the compute nodes:
+
+  # reboot-compute-nodes
+
+Once all compute nodes have rebooted, run the following commands:
+
+  # sdcadm post-setup docker
+
+  # sdcadm update dockerlogger
+
+EOF
