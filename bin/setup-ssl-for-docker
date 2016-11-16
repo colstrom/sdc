@@ -1,0 +1,39 @@
+#!/bin/sh
+
+test "${XTRACE:-false}" = 'false' || set -o xtrace
+
+WORKDIR=${WORKDIR:-$(pwd)}
+CERTIFICATE_PATH=${CERTIFICATE_PATH:-"${WORKDIR}/certs/conf/live"}
+
+docker_service_domain() {
+    sapiadm get $(sdc-sapi /services?name=cloudapi | json -H 0.uuid) \
+        | json -Hag metadata.SERVICE_DOMAIN \
+        | sed 's/^cloudapi/docker/'
+}
+
+DOCKER_SERVICE_DOMAIN=${DOCKER_SERVICE_DOMAIN:-$(docker_service_domain)}
+DOCKER_PRIVKEY="${CERTIFICATE_PATH}/${DOCKER_SERVICE_DOMAIN}/privkey.pem"
+DOCKER_FULLCHAIN="${CERTIFICATE_PATH}/${DOCKER_SERVICE_DOMAIN}/fullchain.pem"
+
+docker_certificate_available() {
+    test -e "${DOCKER_PRIVKEY}" && test -e "${DOCKER_FULLCHAIN}"
+}
+
+replace_docker_certificate() {
+    echo "Replacing Certificate for Docker"
+    sdcadm experimental install-docker-cert -k "${DOCKER_PRIVKEY}" -c "${DOCKER_FULLCHAIN}"
+}
+
+if ! docker_certificate_available
+then
+    cat <<EOS >&2
+No Certificate Available for ${DOCKER_SERVICE_DOMAIN}
+
+Looking for Private Key at: ${DOCKER_PRIVKEY}
+Looging for Public Key at: ${DOCKER_FULLCHAIN}
+
+EOS
+    exit 100
+fi
+
+replace_docker_certificate
