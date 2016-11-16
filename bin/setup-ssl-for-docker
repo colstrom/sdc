@@ -24,6 +24,26 @@ replace_docker_certificate() {
     sdcadm experimental install-docker-cert -k "${DOCKER_PRIVKEY}" -c "${DOCKER_FULLCHAIN}"
 }
 
+cloudapi_service() {
+    sdc-sapi /services?name=cloudapi | json -H 0.uuid
+}
+
+CLOUDAPI_SERVICE=$(cloudapi_service)
+
+rewrite_docker_endpoint() {
+    json -e "
+         svcs = JSON.parse(this.metadata.CLOUDAPI_SERVICES || '{}');
+         svcs.docker = 'tcp://${DOCKER_SERVICE_DOMAIN}:2376';
+         this.update = {metadata: {CLOUDAPI_SERVICES: JSON.stringify(svcs)}};
+         " update
+}
+
+configure_docker_endpoint() {
+    sapiadm get "${CLOUDAPI_SERVICE}" \
+        | rewrite_docker_endpoint \
+        | sapiadm update "${CLOUDAPI_SERVICE}"
+}
+
 if ! docker_certificate_available
 then
     cat <<EOS >&2
@@ -36,4 +56,4 @@ EOS
     exit 100
 fi
 
-replace_docker_certificate
+replace_docker_certificate && configure_docker_endpoint
