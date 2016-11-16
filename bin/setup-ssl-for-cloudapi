@@ -1,0 +1,74 @@
+#!/bin/sh
+
+test "${XTRACE:-false}" = 'false' || set -o xtrace
+
+WORKDIR=${WORKDIR:-$(pwd)}
+CERTIFICATE_PATH=${CERTIFICATE_PATH:-"${WORKDIR}/certs/conf/live"}
+
+cloudapi_service_domain() {
+    sapiadm get $(sdc-sapi /services?name=cloudapi | json -H 0.uuid) | json -Hag metadata.SERVICE_DOMAIN
+}
+
+CLOUDAPI_SERVICE_DOMAIN=$(cloudapi_service_domain)
+CLOUDAPI_PRIVKEY="${CERTIFICATE_PATH}/${CLOUDAPI_SERVICE_DOMAIN}/privkey.pem"
+CLOUDAPI_FULLCHAIN="${CERTIFICATE_PATH}/${CLOUDAPI_SERVICE_DOMAIN}/fullchain.pem"
+
+cloudapi_uuid() {
+    vmadm list | grep cloudapi0 | awk '{ print $1 }'
+}
+
+CLOUDAPI_DEPLOYED_CERTIFICATE_PATH="/zones/$(cloudapi_uuid)/root/opt/smartdc/cloudapi/ssl/stud.pem"
+
+cloudapi_latest_certificate() {
+    cat "${CLOUDAPI_PRIVKEY}" "${CLOUDAPI_FULLCHAIN}"
+}
+
+cloudapi_deployed_certificate() {
+    cat "${CLOUDAPI_DEPLOYED_CERTIFICATE_PATH}"
+}
+
+checksum() {
+    sum --algorithm sha256
+}
+
+cloudapi_using_latest_certificate() {
+    test "$(cloudapi_deployed_certificate | checksum)" = "$(cloudapi_latest_certificate | checksum)"
+}
+
+cloudapi_certificate_available() {
+    test -e "${CLOUDAPI_PRIVKEY}" && test -e "${CLOUDAPI_FULLCHAIN}"
+}
+
+replace_cloudapi_certificate() {
+    echo "Replacing Certificate at ${CLOUDAPI_DEPLOYED_CERTIFICATE_PATH}"
+    cloudapi_latest_certificate > "${CLOUDAPI_DEPLOYED_CERTIFICATE_PATH}"
+}
+
+restart_cloudapi() {
+    for port in 808{1,2,3,4}
+    do
+        sdc-login cloudapi svcadm restart "cloudapi:cloudapi-${port}"
+    done
+
+    sdc-login cloudapi svcadm restart stud
+}
+
+if ! cloudapi_certificate_available
+then
+    cat <<EOS >&2
+No Certificate Available for ${CLOUDAPI_SERVICE_DOMAIN}
+
+Looking for Private Key at: ${CLOUDAPI_PRIVKEY}
+Looging for Public Key at: ${CLOUDAPI_FULLCHAIN}
+
+EOS
+    exit 100
+fi
+
+if cloudapi_using_latest_certificate
+then
+    echo "Already using the latest certificate" >&2
+    exit
+fi
+
+replace_cloudapi_certificate && restart_cloudapi
