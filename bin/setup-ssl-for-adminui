@@ -1,0 +1,69 @@
+#!/bin/sh
+
+test "${XTRACE:-false}" = 'false' || set -o xtrace
+
+WORKDIR=${WORKDIR:-$(pwd)}
+CERTIFICATE_PATH=${CERTIFICATE_PATH:-"${WORKDIR}/certs/conf/live"}
+
+adminui_service_domain() {
+    sapiadm get $(sdc-sapi /services?name=adminui | json -H 0.uuid) | json -Hag metadata.SERVICE_DOMAIN
+}
+
+ADMINUI_SERVICE_DOMAIN=${ADMINUI_SERVICE_DOMAIN:-$(adminui_service_domain)}
+ADMINUI_PRIVKEY="${CERTIFICATE_PATH}/${ADMINUI_SERVICE_DOMAIN}/privkey.pem"
+ADMINUI_FULLCHAIN="${CERTIFICATE_PATH}/${ADMINUI_SERVICE_DOMAIN}/fullchain.pem"
+
+adminui_uuid() {
+    vmadm list | grep adminui0 | awk '{ print $1 }'
+}
+
+ADMINUI_DEPLOYED_CERTIFICATE_PATH="/zones/$(adminui_uuid)/root/opt/smartdc/adminui/etc/ssl/default.pem"
+
+adminui_latest_certificate() {
+    cat "${ADMINUI_PRIVKEY}" "${ADMINUI_FULLCHAIN}"
+}
+
+adminui_deployed_certificate() {
+    cat "${ADMINUI_DEPLOYED_CERTIFICATE_PATH}"
+}
+
+checksum() {
+    sum --algorithm sha256
+}
+
+adminui_using_latest_certificate() {
+    test "$(adminui_deployed_certificate | checksum)" = "$(adminui_latest_certificate | checksum)"
+}
+
+adminui_certificate_available() {
+    test -e "${ADMINUI_PRIVKEY}" && test -e "${ADMINUI_FULLCHAIN}"
+}
+
+replace_adminui_certificate() {
+    echo "Replacing Certificate at ${ADMINUI_DEPLOYED_CERTIFICATE_PATH}"
+    adminui_latest_certificate > "${ADMINUI_DEPLOYED_CERTIFICATE_PATH}"
+}
+
+restart_adminui() {
+    sdc-login adminui svcadm restart adminui
+}
+
+if ! adminui_certificate_available
+then
+    cat <<EOS >&2
+No Certificate Available for ${ADMINUI_SERVICE_DOMAIN}
+
+Looking for Private Key at: ${ADMINUI_PRIVKEY}
+Looging for Public Key at: ${ADMINUI_FULLCHAIN}
+
+EOS
+    exit 100
+fi
+
+if adminui_using_latest_certificate
+then
+    echo "Already using the latest certificate" >&2
+    exit
+fi
+
+replace_adminui_certificate && restart_adminui
