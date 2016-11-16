@@ -19,14 +19,8 @@ At this point, you should reboot the compute nodes:
 
   # reboot-compute-nodes
 
-Once all compute nodes have rebooted, run the following commands:
+Once all compute nodes have rebooted, start the next stage:
 
-  # sdcadm post-setup docker
-
-  # sdcadm update dockerlogger
-
-  # sdcadm experimental cns
-
-  # sdcadm experimental update-other
+  # setup-all-the-things-stage2
 
 EOF
