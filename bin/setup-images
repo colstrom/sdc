@@ -16,13 +16,14 @@ EOF
 
 kvm() {
     awk '{ print $1 }' <<EOF
-897c9d63-9397-4cb3-bf90-88375d7dc933 # ubuntu-certified-14.04
-b8a4ba09-ef63-4ee0-adaf-72cc677d863d # ubuntu-certified-16.04
+762c5b33-62f4-4301-8fd6-14de648a68da # ubuntu-certified-14.04
+698a8146-d6d9-4352-99fe-6557ebce5661 # ubuntu-certified-16.04
 d183f500-9a96-11e6-8976-ff3967dc023a # debian-8
 f7d5c462-9ace-11e6-9e1e-83b238b5d758 # debian-7
 60f332de-9d4c-11e6-9c39-171f4c4b5088 # centos-7
 7511a554-9d54-11e6-9e89-2f0abaeb0ada # centos-6
 39a87f12-034c-11e6-84f5-4316cc1fcaa0 # freebsd-10
+d36810a2-c725-11e6-9f0e-77ae5aad76d8 # freebsd-11
 EOF
 }
 
