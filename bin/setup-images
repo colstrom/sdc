@@ -4,13 +4,13 @@ set -o xtrace
 
 container_native_linux() {
     awk '{ print $1 }' <<EOF
-7b27a514-89d7-11e6-bee6-3f96f367bee7 # ubuntu-14.04
-e331b22a-89d8-11e6-b891-936e4e1caa46 # ubuntu-16.04
-0be607d2-8b61-11e6-bf98-03750d422a79 # centos-6
-32de63f8-8b6f-11e6-beb6-b3e46c186cc2 # centos-7
-87a60dae-8cba-11e6-b7a3-77f05e44af1e # debian-7
-d9798e62-8cba-11e6-8f4f-e79bce537258 # debian-8
-77bc3f50-8f4c-11e6-90b6-f7b69b9dcf20 # alpine-3
+1996a1d6-c0d9-11e6-8b80-4772e39dc920 # ubuntu-14.04
+8879c758-c0da-11e6-9e4b-93e32a67e805 # ubuntu-16.04
+54aaa9ec-c0d0-11e6-ba26-cf334ce1c2e1 # centos-6
+23ee2dbc-c155-11e6-ab6d-bf5689f582fd # centos-7
+83bf48f8-c0c8-11e6-9660-43159ac0d18b # debian-7
+9a8d53c0-c15b-11e6-9c4f-3bcedc82f8e1 # debian-8
+4d3ed29a-c851-11e6-b5a9-639aada4a9c8 # alpine-3
 EOF
 }
 
