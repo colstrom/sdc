@@ -8,5 +8,5 @@ images() {
 
 for image in $(images)
 do
-    echo sdc-imgadm import "${image}" -S https://images.joyent.com
+    sdc-imgadm import "${image}" -S https://images.joyent.com
 done
