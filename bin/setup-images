@@ -3,7 +3,7 @@
 set -o xtrace
 
 images() {
-    awk '{ print $1 }' config/images.tsv
+    awk 'NR >= 2 { print $1 }' config/images.tsv
 }
 
 for image in $(images)
