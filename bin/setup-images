@@ -2,61 +2,11 @@
 
 set -o xtrace
 
-container_native_linux() {
-    awk '{ print $1 }' <<EOF
-1996a1d6-c0d9-11e6-8b80-4772e39dc920 # ubuntu-14.04
-8879c758-c0da-11e6-9e4b-93e32a67e805 # ubuntu-16.04
-54aaa9ec-c0d0-11e6-ba26-cf334ce1c2e1 # centos-6
-23ee2dbc-c155-11e6-ab6d-bf5689f582fd # centos-7
-83bf48f8-c0c8-11e6-9660-43159ac0d18b # debian-7
-9a8d53c0-c15b-11e6-9c4f-3bcedc82f8e1 # debian-8
-4d3ed29a-c851-11e6-b5a9-639aada4a9c8 # alpine-3
-EOF
-}
-
-kvm() {
-    awk '{ print $1 }' <<EOF
-762c5b33-62f4-4301-8fd6-14de648a68da # ubuntu-certified-14.04
-698a8146-d6d9-4352-99fe-6557ebce5661 # ubuntu-certified-16.04
-d183f500-9a96-11e6-8976-ff3967dc023a # debian-8
-f7d5c462-9ace-11e6-9e1e-83b238b5d758 # debian-7
-60f332de-9d4c-11e6-9c39-171f4c4b5088 # centos-7
-7511a554-9d54-11e6-9e89-2f0abaeb0ada # centos-6
-39a87f12-034c-11e6-84f5-4316cc1fcaa0 # freebsd-10
-d36810a2-c725-11e6-9f0e-77ae5aad76d8 # freebsd-11
-EOF
-}
-
-applications() {
-    awk '{ print $1 }' <<EOF
-48bd354a-efd0-11e5-9ae1-d78e67ed4602 # postgresql
-2d7ec6d2-f100-11e5-84d7-77c57246a64a # nginx
-7393d83c-f10b-11e5-b58a-f7bbebe927bf # nodejs
-67ed2fd4-0631-11e6-9e00-b3cc45f3b5a8 # mongodb
-7d03bd9a-0634-11e6-924b-730341c39cf1 # percona
-7c56d790-07d0-11e6-aeca-5350b4486f63 # apache
-EOF
-}
-
-smartos() {
-    awk '{ print $1 }' <<EOF
-e1faace4-e19b-11e5-928b-83849e2fd94a # minimal-64-lts
-088b97b0-e1a1-11e5-b895-9baa2086eb33 # base-64-lts
-c20b4b7c-e1a6-11e5-9a4d-ef590901732e # pkgbuild (LTS)
-95f265b8-96b2-11e6-9597-972f3af4b6d5 # minimal-64
-70e3ae72-96b6-11e6-9056-9737fd4d0764 # base-64
-39448a6c-96bc-11e6-a8f9-ab22626c8431 # pkgbuild
-EOF
-}
-
 images() {
-    smartos
-    applications
-    container_native_linux
-    kvm
+    awk '{ print $1 }' config/images.tsv
 }
 
 for image in $(images)
 do
-    sdc-imgadm import "${image}" -S https://images.joyent.com
+    echo sdc-imgadm import "${image}" -S https://images.joyent.com
 done
