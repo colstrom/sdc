@@ -3,7 +3,7 @@
 set -o pipefail -o xtrace
 
 compute_nodes() {
-    sdc-cnapi /servers | json -Hac 'hostname != "headnode"' uuid
+    sdc-cnapi /servers | json -Hac 'setup && !headnode' uuid
 }
 
 compute_node_secondary_mac() {
