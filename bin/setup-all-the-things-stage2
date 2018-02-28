@@ -4,7 +4,7 @@ set -o xtrace
 
 sdcadm post-setup docker
 sdcadm update dockerlogger
-sdcadm experimental cns
+sdcadm post-setup cns
 sdcadm experimental update-other
 setup-images
 setup-ssl
